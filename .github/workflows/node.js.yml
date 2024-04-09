@@ -1,0 +1,43 @@
+name: Node.js with React CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies for React frontend
+        run: npm install
+        working-directory: users
+
+      - name: Install dependencies for server
+        run: npm install
+        working-directory: backend
+
+      - name: Build React frontend
+        run: npm run build
+        working-directory: users
+
+      - name: Copy files
+        run: |
+          cp -r users/* $GITHUB_WORKSPACE
+          cp -r backend/* $GITHUB_WORKSPACE
+        working-directory: $GITHUB_WORKSPACE
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: release
+          path: .
